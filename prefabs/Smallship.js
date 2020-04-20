@@ -8,7 +8,7 @@ class Smallship extends Phaser.GameObjects.Sprite {
 
     update() {
         // move spaceship left
-        this.x -= game.settings.spaceshipSpeed;
+        this.x -= game.settings.smallshipSpeed;
         // wraparound from left to right edge
         if (this.x <= 0-this.width) {
             this.reset();
