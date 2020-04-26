@@ -13,9 +13,16 @@ class Play extends Phaser.Scene {
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 64, startFrame: 0, endFrame: 9});
     }
 
+    isPlaying = false;
+
     create() {
         // place tile sprite
         this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0, 0);
+
+        if(this.isPlaying == false){
+            this.bgm = this.sound.add('music');
+            this.bgm.play();
+        }
 
         // green UI background
         this.add.rectangle(37, 42, 566, 64, 0x00FF00).setOrigin(0, 0);
@@ -49,6 +56,13 @@ class Play extends Phaser.Scene {
 
         // player 1 score
         this.p1Score = 0;
+        this.hScore = highScore;
+
+        if(game.settings.gameTimer == 60000){
+            this.timeMe = 60;
+        }else{
+            this.timeMe = 45;
+        }
         // score display
         let scoreConfig = {
             fontFamily: 'Courier',
@@ -60,9 +74,10 @@ class Play extends Phaser.Scene {
                 top: 5,
                 bottom: 5,
             },
-            fixedWidth: 100
+            fixedWidth: 130
         }
         this.scoreLeft = this.add.text(69, 54, this.p1Score, scoreConfig);
+        this.scoreRight = this.add.text(400, 54,"HS: " + this.hScore, scoreConfig);
 
         // game over flag
         this.gameOver = false;
@@ -74,11 +89,14 @@ class Play extends Phaser.Scene {
             this.add.text(game.config.width/2, game.config.height/2 + 64, '(F)ire to Restart or ← for Menu', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
+        this.timeMid = this.add.text(225, 54, 'Time: '+ this.timeMe-this.clock.getElapsedSeconds(), scoreConfig);
     }
 
     update() {
         // check key input for restart / menu
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyF)) {
+            highScore = this.p1Score;
+            console.log(highScore);
             this.scene.restart();
         }
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
@@ -110,6 +128,12 @@ class Play extends Phaser.Scene {
             this.p1Rocket.reset();
             this.shipExplode(this.ship04);
         }
+
+        if(this.hScore <= this.p1Score){
+            this.scoreRight.setText("HS: " + this.p1Score) ;
+        }
+
+        this.timeMid.setText('Time: ' + Math.floor(this.timeMe-this.clock.getElapsedSeconds()));
     }
 
     checkCollision(rocket, ship) {
